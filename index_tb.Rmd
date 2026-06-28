@@ -1,0 +1,124 @@
+---
+title: Análisis de datos con R
+subtitle: "Análisis de datos de TB"
+author: "Karen Lopez"
+date: "26/06/2026"
+output:
+    prettydoc::html_pretty:
+      theme: hpstr
+      highlight: vignette
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = TRUE,
+	warning = TRUE
+)
+library(DT)
+library(tidyverse)
+library(EDAWR)
+```
+
+
+# Datos de tuberculosis
+
+El paquete `EDAWR` proporciona tres "datasets" para aplicar el paquete `dplyr` de `R`.
+Primeramente, vamos a visualizar parte de los datos:
+
+```{r, datosTB}
+data(tb)
+datos <- head(tb)
+datatable(datos)
+```
+El número de países lo podemos conocer usando el siguiente comando:
+
+```{r}
+tb %>% select(country) %>% unique() %>% nrow()
+```
+
+
+# Análisis de los datos con dplyr.
+
+Ahora, analizaremos los datos con `dplyr`, usando los comando `select`, `filter`, etc., y después graficando con `ggplot2`. Primero, conoceremos el número de casos de TB en niños en México por sexo. Note que primero filtramos por pais que es "Mexico" y después hacemos un resumen con el número de casos.
+
+```{r, ana1}
+tb %>% filter(country == "Mexico") %>% select(country, year, sex, child) %>% na.omit() %>% group_by(sex) %>% summarise(numero = sum(child)) %>% ggplot(mapping= aes(x=sex, y=numero)) + geom_col()
+```
+
+## ACTIVIDAD RESUELTA
+
+## Calcule el número de casos por sexo para adultos en Afganistan
+
+
+```{r, ana2}
+tb %>% filter(country == "Afghanistan") %>% 
+  select(country, year, sex, adult) %>% 
+  na.omit() %>% 
+  group_by(sex) %>% 
+  summarise(numero = sum(adult)) %>% 
+  ggplot(mapping= aes(x=sex, y=numero)) + geom_col()
+```
+
+## Calcule el número de casos por sexo para personas de la tercera edad en Botswana
+
+```{r, ana3}
+tb %>% filter(country == "Botswana") %>% 
+  select(country, year, sex, elderly) %>% 
+  na.omit() %>% group_by(sex) %>% 
+  summarise(numero = sum(elderly)) %>% 
+  ggplot(mapping= aes(x=sex, y=numero)) + geom_col()
+```
+
+# Número de casos de México vs Estados Unidos
+
+Ahora, compararemos el número de casos de México vs Estados Unidos.
+
+```{r mexVsEU, message=FALSE}
+tb %>% filter(country %in% c("Mexico", "United States of America")) %>% na.omit() %>% group_by(country, sex) %>% summarise(Total = sum(child)) %>% ggplot(mapping=aes(x=sex, y=Total))+geom_col(aes(fill=country))
+```
+
+# Número de casos de México vs Canada
+
+
+```{r mexVsCAN, message=FALSE, eval=FALSE}
+tb %>% filter(country %in% c("___", "__")) %>% na.omit() %>% group_by(country, sex) %>% summarise(Total = sum(child)) %>% ggplot(mapping=aes(x=sex, y=Total))+geom_col(aes(fill=country))
+```
+
+
+# Número de casos de México vs Algún pais africano
+
+```{r mexVsAFRI, message=FALSE, eval=FALSE}
+tb %>% filter(country %in% c("___", "__")) %>% na.omit() %>% group_by(country, sex) %>% summarise(Total = sum(child)) %>% ggplot(mapping=aes(x=sex, y=Total))+geom_col(aes(fill=country))
+```
+
+# Tarea
+
+Hallar:
+
+- El número total de casos de Mexico (ninño, adultos y adultos mayores)
+
+
+```{r}
+#1 Total de Casos en Mexico 
+tb %>%
+  filter(country == "Mexico") %>%
+  summarise(Total_Mexico = sum(child, adult, elderly, na.rm = TRUE))
+```
+
+- El número total de casos en Afganistan en el 2002.
+
+```{r}
+tb %>%
+  filter(country == "Afghanistan", year == 2002) %>%
+  summarise(Total_Afghanistan_2002 = sum (child, adult, elderly, na.rm = TRUE))
+```
+
+- El número total de casos en Estados Unidos de 1998 a 2004.
+
+```{r}
+tb %>%
+  filter(country == "United States of America", year >= 1998, year <= 2004) %>%
+  summarise(Total_Eu_1998_2004 = sum (child, adult, elderly, na.rm = TRUE))
+```
+
